@@ -1,0 +1,2553 @@
+<!doctype html>
+<html lang="ru">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+  <meta name="theme-color" content="#f3eee3">
+  <title>Три в ряд · Иероглифы и крестики-нолики</title>
+  <style>
+    :root {
+      --paper: #f3eee3;
+      --paper-deep: #e8e0d1;
+      --surface: rgba(255, 252, 245, 0.88);
+      --ink: #24211d;
+      --ink-soft: #726b61;
+      --ink-faint: #a69d90;
+      --line: rgba(42, 37, 31, 0.15);
+      --red: #c44f45;
+      --red-deep: #963b35;
+      --blue: #4d7190;
+      --blue-deep: #385875;
+      --gold: #b9904d;
+      --white: #fffdf8;
+      --shadow: 0 22px 60px rgba(54, 44, 32, 0.11);
+      --radius: 24px;
+      --sans: "Microsoft YaHei", "PingFang SC", "Noto Sans SC", sans-serif;
+      --kai: "KaiTi", "STKaiti", "FangSong", serif;
+      --display: "Georgia", "Iowan Old Style", "Times New Roman", serif;
+      --latin: "Segoe Print", "Bradley Hand", "Comic Sans MS", cursive;
+      --cursor-arrow: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='28' height='32' viewBox='0 0 28 32'%3E%3Cpath d='M2 2L23 18L13.5 19.5L19.5 29.5L16 31.5L10 21.5L2 29Z' fill='%23c44f45' stroke='%23fffdf8' stroke-width='2' stroke-linejoin='round'/%3E%3C/svg%3E") 3 2, auto;
+      --cursor-crosshair: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='28' height='28' viewBox='0 0 28 28'%3E%3Ccircle cx='14' cy='14' r='4' fill='%23c44f45' stroke='%23fffdf8' stroke-width='2'/%3E%3Cpath d='M14 2V8M14 20V26M2 14H8M20 14H26' fill='none' stroke='%23c44f45' stroke-width='2.5' stroke-linecap='round'/%3E%3C/svg%3E") 14 14, crosshair;
+    }
+
+    * {
+      box-sizing: border-box;
+    }
+
+    html {
+      min-width: 320px;
+      background: var(--paper);
+    }
+
+    body {
+      min-height: 100vh;
+      margin: 0;
+      color: var(--ink);
+      font-family: var(--sans);
+      background:
+        radial-gradient(circle at 12% 8%, rgba(255, 252, 244, 0.98) 0 11%, transparent 32%),
+        radial-gradient(circle at 88% 88%, rgba(211, 197, 173, 0.26), transparent 31%),
+        linear-gradient(135deg, #f8f4ea 0%, var(--paper) 52%, #eee7da 100%);
+      overflow-x: hidden;
+    }
+
+    body::before {
+      content: "3";
+      position: fixed;
+      right: -0.12em;
+      top: -0.28em;
+      z-index: 0;
+      font: 700 clamp(300px, 41vw, 680px) / 1 var(--kai);
+      color: rgba(93, 75, 49, 0.035);
+      pointer-events: none;
+      transform: rotate(-5deg);
+    }
+
+    body::after {
+      content: "";
+      position: fixed;
+      inset: 0;
+      z-index: 0;
+      opacity: 0.2;
+      pointer-events: none;
+      background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='140' height='140' viewBox='0 0 140 140'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='.72' numOctaves='2' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)' opacity='.12'/%3E%3C/svg%3E");
+      mix-blend-mode: multiply;
+    }
+
+    button,
+    input {
+      font: inherit;
+    }
+
+    button {
+      color: inherit;
+    }
+
+    button:focus-visible,
+    [tabindex]:focus-visible {
+      outline: 3px solid rgba(77, 113, 144, 0.42);
+      outline-offset: 3px;
+    }
+
+    .app {
+      position: relative;
+      z-index: 1;
+      width: min(1140px, calc(100% - 48px));
+      margin: 0 auto;
+      padding: 24px 0 30px;
+    }
+
+    .topbar {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 20px;
+      padding: 2px 2px 20px;
+    }
+
+    .brand {
+      display: flex;
+      align-items: center;
+      gap: 13px;
+      user-select: none;
+    }
+
+    .brand-seal {
+      position: relative;
+      display: grid;
+      width: 44px;
+      height: 44px;
+      place-items: center;
+      border: 2px solid var(--red);
+      border-radius: 8px 12px 7px 10px;
+      background:
+        linear-gradient(rgba(255, 255, 255, 0.08), rgba(255, 255, 255, 0)),
+        var(--red);
+      color: #fff8ea;
+      font: 700 25px/1 var(--kai);
+      box-shadow: inset 0 0 0 3px var(--red), inset 0 0 0 4px rgba(255, 248, 234, 0.4);
+      transform: rotate(-2deg);
+    }
+
+    .brand-name {
+      font: 700 21px/1.05 var(--kai);
+      letter-spacing: 0.08em;
+    }
+
+    .brand-sub {
+      margin-top: 5px;
+      color: var(--ink-soft);
+      font-size: 11px;
+      letter-spacing: 0.2em;
+      text-transform: uppercase;
+    }
+
+    .top-actions {
+      display: flex;
+      align-items: center;
+      gap: 9px;
+    }
+
+    .icon-button,
+    .quiet-button {
+      display: inline-flex;
+      min-height: 40px;
+      align-items: center;
+      justify-content: center;
+      gap: 8px;
+      border: 1px solid var(--line);
+      border-radius: 999px;
+      background: rgba(255, 253, 248, 0.62);
+      cursor: pointer;
+      transition: border-color 160ms ease, background 160ms ease, transform 160ms ease;
+    }
+
+    .icon-button {
+      width: 40px;
+      padding: 0;
+      font-size: 18px;
+    }
+
+    .quiet-button {
+      padding: 0 15px;
+      color: var(--ink-soft);
+      font-size: 13px;
+    }
+
+    .icon-button:hover,
+    .quiet-button:hover {
+      border-color: rgba(42, 37, 31, 0.27);
+      background: var(--white);
+      transform: translateY(-1px);
+    }
+
+    .hero {
+      display: grid;
+      grid-template-columns: minmax(0, 1fr) auto;
+      align-items: end;
+      gap: 22px;
+      margin: 13px 2px 27px;
+    }
+
+    .eyebrow {
+      display: flex;
+      align-items: center;
+      gap: 9px;
+      margin-bottom: 12px;
+      color: var(--red);
+      font-size: 11px;
+      font-weight: 700;
+      letter-spacing: 0.21em;
+      text-transform: uppercase;
+    }
+
+    .eyebrow::before {
+      content: "";
+      width: 25px;
+      height: 1px;
+      background: currentColor;
+    }
+
+    h1 {
+      max-width: 750px;
+      margin: 0;
+      font: 700 clamp(42px, 4.7vw, 64px) / 0.98 var(--display);
+      letter-spacing: -0.045em;
+      text-wrap: balance;
+    }
+
+    h1 .accent {
+      position: relative;
+      color: var(--red);
+      white-space: nowrap;
+    }
+
+    h1 .accent::after {
+      content: "";
+      position: absolute;
+      left: -2%;
+      right: -4%;
+      bottom: -0.08em;
+      height: 0.1em;
+      border-radius: 50%;
+      background: rgba(196, 79, 69, 0.25);
+      transform: rotate(-1.4deg);
+    }
+
+    .hero-copy {
+      max-width: 620px;
+      margin: 17px 0 0;
+      color: var(--ink-soft);
+      font-size: 15px;
+      line-height: 1.75;
+    }
+
+    .round-counter {
+      min-width: 150px;
+      padding: 15px 18px 14px;
+      border: 1px solid var(--line);
+      border-radius: 18px;
+      background: rgba(255, 253, 248, 0.52);
+      text-align: right;
+    }
+
+    .round-counter span {
+      display: block;
+      color: var(--ink-soft);
+      font-size: 11px;
+      letter-spacing: 0.15em;
+    }
+
+    .round-counter strong {
+      display: block;
+      margin-top: 4px;
+      font: 700 28px/1 var(--display);
+    }
+
+    .game-layout {
+      display: grid;
+      grid-template-columns: minmax(560px, 660px) minmax(300px, 355px);
+      gap: 22px;
+      align-items: start;
+      justify-content: space-between;
+    }
+
+    .game-card {
+      padding: 18px;
+      border: 1px solid rgba(67, 54, 38, 0.12);
+      border-radius: 30px;
+      background: rgba(255, 252, 245, 0.76);
+      box-shadow: var(--shadow);
+      backdrop-filter: blur(14px);
+    }
+
+    .scorebar {
+      display: grid;
+      grid-template-columns: 1fr auto 1fr;
+      gap: 12px;
+      align-items: stretch;
+      margin-bottom: 14px;
+    }
+
+    .player-card {
+      position: relative;
+      display: flex;
+      min-height: 74px;
+      align-items: center;
+      gap: 11px;
+      padding: 11px 13px;
+      border: 1px solid transparent;
+      border-radius: 17px;
+      background: rgba(245, 240, 230, 0.72);
+      transition: 200ms ease;
+    }
+
+    .player-card.is-active {
+      border-color: rgba(42, 37, 31, 0.17);
+      background: var(--white);
+      box-shadow: 0 9px 22px rgba(56, 45, 31, 0.07);
+    }
+
+    .player-card.is-active::after {
+      content: "ход";
+      position: absolute;
+      top: 7px;
+      right: 8px;
+      color: var(--ink-soft);
+      font-size: 9px;
+      font-weight: 700;
+      letter-spacing: 0.12em;
+    }
+
+    .player-card.player-two {
+      flex-direction: row-reverse;
+      text-align: right;
+    }
+
+    .player-card.player-two.is-active::after {
+      right: auto;
+      left: 8px;
+    }
+
+    .avatar {
+      position: relative;
+      display: grid;
+      flex: 0 0 42px;
+      width: 42px;
+      height: 42px;
+      place-items: center;
+      border-radius: 50%;
+      background: rgba(196, 79, 69, 0.11);
+      color: var(--red);
+      font: 700 20px/1 var(--kai);
+    }
+
+    .player-two .avatar {
+      background: rgba(77, 113, 144, 0.12);
+      color: var(--blue);
+    }
+
+    .player-card.is-active .avatar::after {
+      content: "";
+      position: absolute;
+      inset: -4px;
+      border: 1px solid currentColor;
+      border-radius: 50%;
+      opacity: 0.35;
+      animation: breathe 2.4s ease-in-out infinite;
+    }
+
+    @keyframes breathe {
+      50% { transform: scale(1.1); opacity: 0.08; }
+    }
+
+    .player-name {
+      margin: 0;
+      font-size: 13px;
+      font-weight: 700;
+    }
+
+    .player-score {
+      margin-top: 4px;
+      color: var(--ink-soft);
+      font-size: 11px;
+    }
+
+    .score-divider {
+      display: grid;
+      width: 45px;
+      place-items: center;
+      color: var(--ink-faint);
+      font: 700 13px/1 var(--kai);
+    }
+
+    .turn-strip {
+      display: flex;
+      min-height: 46px;
+      align-items: center;
+      justify-content: space-between;
+      gap: 14px;
+      margin-bottom: 12px;
+      padding: 0 4px 0 7px;
+    }
+
+    .turn-copy {
+      display: flex;
+      min-width: 0;
+      align-items: center;
+      gap: 9px;
+      color: var(--ink-soft);
+      font-size: 13px;
+    }
+
+    .turn-dot {
+      width: 8px;
+      height: 8px;
+      flex: 0 0 8px;
+      border-radius: 50%;
+      background: var(--red);
+      box-shadow: 0 0 0 4px rgba(196, 79, 69, 0.11);
+    }
+
+    .turn-dot.blue {
+      background: var(--blue);
+      box-shadow: 0 0 0 4px rgba(77, 113, 144, 0.11);
+    }
+
+    .turn-copy strong {
+      color: var(--ink);
+      font-weight: 700;
+    }
+
+    .legend {
+      display: flex;
+      flex: 0 0 auto;
+      align-items: center;
+      gap: 6px;
+      color: var(--ink-faint);
+      font-size: 10px;
+    }
+
+    .legend-line {
+      width: 27px;
+      height: 4px;
+      border-radius: 999px;
+      background: repeating-linear-gradient(90deg, var(--red) 0 4px, transparent 4px 7px);
+      opacity: 0.75;
+    }
+
+    .board-stage {
+      position: relative;
+      padding: 12px;
+      border-radius: 23px;
+      background:
+        linear-gradient(rgba(255, 255, 255, 0.22), rgba(255, 255, 255, 0)),
+        #e9e2d5;
+      box-shadow:
+        inset 0 0 0 1px rgba(48, 40, 30, 0.13),
+        inset 0 2px 8px rgba(255, 255, 255, 0.7);
+    }
+
+    .board {
+      position: relative;
+      display: grid;
+      overflow: hidden;
+      grid-template-columns: repeat(3, minmax(0, 1fr));
+      grid-template-rows: repeat(3, minmax(0, 1fr));
+      aspect-ratio: 1;
+      border: 2px solid rgba(43, 38, 32, 0.52);
+      border-radius: 15px;
+      background: #fbf8f0;
+      isolation: isolate;
+    }
+
+    .grid-line {
+      position: absolute;
+      z-index: 3;
+      pointer-events: none;
+      background: rgba(43, 38, 32, 0.43);
+      box-shadow: 0 1px rgba(255, 255, 255, 0.4);
+    }
+
+    .grid-line.vertical {
+      top: 0;
+      bottom: 0;
+      width: 1px;
+    }
+
+    .grid-line.v1 { left: calc(100% / 3); }
+    .grid-line.v2 { left: calc(200% / 3); }
+
+    .grid-line.horizontal {
+      right: 0;
+      left: 0;
+      height: 1px;
+    }
+
+    .grid-line.h1 { top: calc(100% / 3); }
+    .grid-line.h2 { top: calc(200% / 3); }
+
+    .cell {
+      position: relative;
+      min-width: 0;
+      min-height: 0;
+      overflow: hidden;
+      cursor: pointer;
+      touch-action: none;
+      transition: background 180ms ease, box-shadow 180ms ease;
+    }
+
+    .cell:not(.is-claimed)::before {
+      content: "";
+      position: absolute;
+      inset: 19%;
+      z-index: 0;
+      opacity: 0.12;
+      background:
+        linear-gradient(90deg, transparent calc(50% - 0.5px), var(--ink-soft) 50%, transparent calc(50% + 0.5px)),
+        linear-gradient(transparent calc(50% - 0.5px), var(--ink-soft) 50%, transparent calc(50% + 0.5px));
+      transition: opacity 180ms ease;
+    }
+
+    .cell:hover:not(.is-claimed) {
+      background: rgba(255, 255, 255, 0.52);
+    }
+
+    .cell:hover:not(.is-claimed)::before {
+      opacity: 0.22;
+    }
+
+    .cell.is-active {
+      background: rgba(255, 253, 247, 0.72);
+      box-shadow: inset 0 0 0 3px rgba(196, 79, 69, 0.58);
+    }
+
+    .cell.is-active.is-blue {
+      box-shadow: inset 0 0 0 3px rgba(77, 113, 144, 0.62);
+    }
+
+    .cell.is-active::after {
+      content: "Пишите здесь";
+      position: absolute;
+      right: 10px;
+      bottom: 9px;
+      z-index: 7;
+      padding: 3px 7px;
+      border-radius: 10px;
+      background: rgba(196, 79, 69, 0.1);
+      color: var(--red);
+      font-size: 9px;
+      font-weight: 700;
+      letter-spacing: 0.06em;
+      pointer-events: none;
+    }
+
+    .cell.is-active.is-blue::after {
+      background: rgba(77, 113, 144, 0.1);
+      color: var(--blue);
+    }
+
+    .cell.is-claimed {
+      cursor: default;
+      background:
+        radial-gradient(circle at 50% 54%, rgba(196, 79, 69, 0.055), transparent 57%),
+        rgba(255, 253, 248, 0.36);
+    }
+
+    .cell.is-claimed.player-blue {
+      background:
+        radial-gradient(circle at 50% 54%, rgba(77, 113, 144, 0.065), transparent 57%),
+        rgba(255, 253, 248, 0.36);
+    }
+
+    .pinyin {
+      position: absolute;
+      top: 10px;
+      left: 11px;
+      z-index: 8;
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      color: var(--red);
+      font: 700 clamp(17px, 2vw, 25px) / 1 var(--latin);
+      letter-spacing: -0.02em;
+      pointer-events: none;
+      transform: rotate(-1deg);
+    }
+
+    .cell[data-index="1"] .pinyin,
+    .cell[data-index="5"] .pinyin,
+    .cell[data-index="7"] .pinyin {
+      transform: rotate(0.7deg);
+    }
+
+    .player-blue .pinyin {
+      color: var(--blue);
+    }
+
+    .pinyin-mark {
+      width: 5px;
+      height: 5px;
+      border-radius: 50%;
+      background: currentColor;
+      opacity: 0.38;
+    }
+
+    .canvas-stack {
+      position: absolute;
+      inset: 0;
+      z-index: 4;
+    }
+
+    .cell canvas {
+      position: absolute;
+      inset: 0;
+      display: block;
+      width: 100%;
+      height: 100%;
+    }
+
+    .ghost-canvas {
+      z-index: 3;
+      opacity: 0;
+      pointer-events: none;
+      transition: opacity 220ms ease;
+    }
+
+    .ghost-canvas.is-visible {
+      opacity: 0.16;
+    }
+
+    .ink-canvas {
+      z-index: 4;
+      pointer-events: none;
+    }
+
+    .cell.is-active .ink-canvas {
+      pointer-events: auto;
+      cursor: crosshair;
+    }
+
+    .cell-stamp {
+      position: absolute;
+      right: 10px;
+      bottom: 10px;
+      z-index: 9;
+      display: grid;
+      width: 30px;
+      height: 30px;
+      place-items: center;
+      border: 1.5px solid var(--red);
+      border-radius: 50%;
+      color: var(--red);
+      font-size: 14px;
+      font-weight: 800;
+      opacity: 0;
+      transform: rotate(-9deg) scale(1.6);
+      transition: 280ms cubic-bezier(0.2, 0.8, 0.2, 1);
+    }
+
+    .cell.is-claimed .cell-stamp {
+      opacity: 1;
+      transform: rotate(-9deg) scale(1);
+    }
+
+    .cell.player-blue .cell-stamp {
+      border-color: var(--blue);
+      color: var(--blue);
+    }
+
+    .cell.is-winning {
+      animation: winning-cell 600ms ease both;
+    }
+
+    .cell.is-winning::before {
+      content: "";
+      position: absolute;
+      inset: 0;
+      z-index: 2;
+      background: rgba(185, 144, 77, 0.12);
+    }
+
+    @keyframes winning-cell {
+      0%, 100% { background-color: transparent; }
+      45% { background-color: rgba(185, 144, 77, 0.16); }
+    }
+
+    .cell.shake {
+      animation: shake 360ms ease;
+    }
+
+    @keyframes shake {
+      0%, 100% { transform: translateX(0); }
+      25% { transform: translateX(-5px); }
+      55% { transform: translateX(5px); }
+      78% { transform: translateX(-2px); }
+    }
+
+    .board-tip {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 7px;
+      min-height: 31px;
+      padding-top: 11px;
+      color: var(--ink-faint);
+      font-size: 10px;
+      letter-spacing: 0.04em;
+      text-align: center;
+    }
+
+    .board-tip span {
+      display: inline-block;
+      width: 4px;
+      height: 4px;
+      border-radius: 50%;
+      background: var(--gold);
+    }
+
+    .sidebar {
+      display: grid;
+      gap: 14px;
+      min-width: 0;
+    }
+
+    .panel {
+      padding: 19px;
+      border: 1px solid rgba(67, 54, 38, 0.12);
+      border-radius: 22px;
+      background: rgba(255, 252, 245, 0.7);
+      box-shadow: 0 9px 28px rgba(54, 44, 32, 0.055);
+      backdrop-filter: blur(11px);
+    }
+
+    .panel-label {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      margin-bottom: 13px;
+      color: var(--ink-faint);
+      font-size: 10px;
+      font-weight: 700;
+      letter-spacing: 0.17em;
+      text-transform: uppercase;
+    }
+
+    .panel-label::before {
+      content: "";
+      width: 13px;
+      height: 1px;
+      background: currentColor;
+    }
+
+    .task-title {
+      margin: 0;
+      font: 700 25px/1.3 var(--display);
+    }
+
+    .theme-row {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 10px;
+      margin: -3px 0 11px;
+      padding: 8px 10px;
+      border: 1px solid rgba(67, 54, 38, 0.1);
+      border-radius: 10px;
+      background: rgba(243, 238, 227, 0.55);
+    }
+
+    .theme-row span {
+      color: var(--ink-faint);
+      font-size: 9px;
+      font-weight: 700;
+      letter-spacing: 0.11em;
+      text-transform: uppercase;
+    }
+
+    .theme-row strong {
+      color: var(--ink-soft);
+      font-size: 11px;
+      font-weight: 700;
+      text-align: right;
+    }
+
+    .task-copy {
+      min-height: 45px;
+      margin: 8px 0 15px;
+      color: var(--ink-soft);
+      font-size: 12px;
+      line-height: 1.7;
+    }
+
+    .task-copy strong {
+      color: var(--ink);
+    }
+
+    .big-pinyin {
+      color: var(--red);
+      font: 700 23px/1 var(--latin);
+    }
+
+    .player-blue-copy .big-pinyin {
+      color: var(--blue);
+    }
+
+    .write-actions {
+      display: grid;
+      grid-template-columns: 1fr 43px;
+      gap: 8px;
+    }
+
+    .primary-button {
+      position: relative;
+      display: flex;
+      width: 100%;
+      min-height: 48px;
+      align-items: center;
+      justify-content: center;
+      gap: 8px;
+      overflow: hidden;
+      border: 0;
+      border-radius: 14px;
+      background: var(--red);
+      color: #fffaf1;
+      font-size: 13px;
+      font-weight: 700;
+      letter-spacing: 0.03em;
+      cursor: pointer;
+      box-shadow: 0 9px 20px rgba(196, 79, 69, 0.18);
+      transition: 180ms ease;
+    }
+
+    .primary-button.is-blue {
+      background: var(--blue);
+      box-shadow: 0 9px 20px rgba(77, 113, 144, 0.19);
+    }
+
+    .primary-button:hover:not(:disabled) {
+      transform: translateY(-1px);
+      filter: brightness(1.04);
+    }
+
+    .primary-button:active:not(:disabled) {
+      transform: translateY(1px);
+    }
+
+    .primary-button:disabled {
+      background: #bcb4a7;
+      box-shadow: none;
+      cursor: not-allowed;
+      opacity: 0.56;
+    }
+
+    .clear-button,
+    .hint-button {
+      display: grid;
+      border: 1px solid var(--line);
+      background: rgba(255, 253, 248, 0.8);
+      color: var(--ink-soft);
+      cursor: pointer;
+      transition: 160ms ease;
+    }
+
+    .clear-button {
+      min-height: 48px;
+      place-items: center;
+      border-radius: 14px;
+      font-size: 18px;
+    }
+
+    .clear-button:hover:not(:disabled),
+    .hint-button:hover:not(:disabled) {
+      border-color: rgba(42, 37, 31, 0.27);
+      background: var(--white);
+      color: var(--ink);
+    }
+
+    .clear-button:disabled,
+    .hint-button:disabled {
+      cursor: default;
+      opacity: 0.35;
+    }
+
+    .hint-row {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 9px;
+      margin-top: 11px;
+    }
+
+    .feedback {
+      flex: 1;
+      min-width: 0;
+      color: var(--ink-faint);
+      font-size: 10px;
+      line-height: 1.45;
+    }
+
+    .hint-button {
+      flex: 0 0 auto;
+      min-height: 29px;
+      padding: 0 10px;
+      border-radius: 999px;
+      font-size: 10px;
+    }
+
+    .rules-panel {
+      padding-top: 17px;
+      padding-bottom: 17px;
+    }
+
+    .rule {
+      display: grid;
+      grid-template-columns: 27px 1fr;
+      gap: 9px;
+      align-items: start;
+    }
+
+    .rule + .rule {
+      margin-top: 12px;
+    }
+
+    .rule-number {
+      display: grid;
+      width: 24px;
+      height: 24px;
+      place-items: center;
+      border: 1px solid var(--line);
+      border-radius: 50%;
+      color: var(--ink-faint);
+      font: 700 10px/1 var(--sans);
+    }
+
+    .rule p {
+      margin: 2px 0 0;
+      color: var(--ink-soft);
+      font-size: 11px;
+      line-height: 1.6;
+    }
+
+    .rule strong {
+      color: var(--ink);
+    }
+
+    .local-note {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 7px;
+      padding: 5px 0 0;
+      color: var(--ink-faint);
+      font-size: 9px;
+      letter-spacing: 0.06em;
+    }
+
+    .lock {
+      width: 8px;
+      height: 7px;
+      border: 1px solid currentColor;
+      border-radius: 2px;
+      position: relative;
+    }
+
+    .lock::before {
+      content: "";
+      position: absolute;
+      left: 1px;
+      top: -5px;
+      width: 4px;
+      height: 5px;
+      border: 1px solid currentColor;
+      border-bottom: 0;
+      border-radius: 4px 4px 0 0;
+    }
+
+    .toast {
+      position: fixed;
+      left: 50%;
+      bottom: 24px;
+      z-index: 50;
+      display: flex;
+      max-width: calc(100% - 32px);
+      align-items: center;
+      gap: 10px;
+      padding: 12px 17px;
+      border: 1px solid rgba(255, 255, 255, 0.12);
+      border-radius: 14px;
+      background: rgba(37, 33, 28, 0.93);
+      color: #fffaf1;
+      font-size: 12px;
+      box-shadow: 0 15px 40px rgba(37, 33, 28, 0.24);
+      opacity: 0;
+      pointer-events: none;
+      transform: translate(-50%, 14px);
+      transition: 220ms ease;
+    }
+
+    .toast.show {
+      opacity: 1;
+      transform: translate(-50%, 0);
+    }
+
+    .toast-icon {
+      display: grid;
+      width: 22px;
+      height: 22px;
+      flex: 0 0 22px;
+      place-items: center;
+      border-radius: 50%;
+      background: var(--red);
+      font-size: 11px;
+      font-weight: 800;
+    }
+
+    .toast.good .toast-icon {
+      background: #5b806a;
+    }
+
+    .modal-backdrop {
+      position: fixed;
+      inset: 0;
+      z-index: 100;
+      display: grid;
+      place-items: center;
+      padding: 24px;
+      background: rgba(35, 31, 26, 0.34);
+      opacity: 0;
+      pointer-events: none;
+      backdrop-filter: blur(7px);
+      transition: opacity 250ms ease;
+    }
+
+    .modal-backdrop.is-open {
+      opacity: 1;
+      pointer-events: auto;
+    }
+
+    .result-modal {
+      position: relative;
+      width: min(420px, 100%);
+      overflow: hidden;
+      padding: 32px;
+      border: 1px solid rgba(57, 47, 35, 0.15);
+      border-radius: 26px;
+      background:
+        radial-gradient(circle at 100% 0, rgba(185, 144, 77, 0.16), transparent 35%),
+        #fffcf5;
+      box-shadow: 0 30px 90px rgba(37, 31, 24, 0.28);
+      text-align: center;
+      transform: translateY(12px) scale(0.97);
+      transition: transform 250ms ease;
+    }
+
+    .modal-backdrop.is-open .result-modal {
+      transform: translateY(0) scale(1);
+    }
+
+    .result-seal {
+      display: grid;
+      width: 67px;
+      height: 67px;
+      margin: 0 auto 18px;
+      place-items: center;
+      border: 2px solid var(--red);
+      border-radius: 16px 21px 15px 19px;
+      color: var(--red);
+      font: 700 36px/1 var(--kai);
+      transform: rotate(-3deg);
+    }
+
+    .result-modal.is-blue .result-seal {
+      border-color: var(--blue);
+      color: var(--blue);
+    }
+
+    .result-kicker {
+      margin: 0 0 6px;
+      color: var(--ink-faint);
+      font-size: 10px;
+      font-weight: 700;
+      letter-spacing: 0.2em;
+    }
+
+    .result-title {
+      margin: 0;
+      font: 700 34px/1.2 var(--display);
+    }
+
+    .result-copy {
+      margin: 10px 0 23px;
+      color: var(--ink-soft);
+      font-size: 13px;
+      line-height: 1.65;
+    }
+
+    .result-actions {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 9px;
+    }
+
+    .secondary-button {
+      min-height: 46px;
+      border: 1px solid var(--line);
+      border-radius: 13px;
+      background: transparent;
+      color: var(--ink-soft);
+      font-size: 12px;
+      font-weight: 700;
+      cursor: pointer;
+    }
+
+    .result-actions .primary-button {
+      min-height: 46px;
+    }
+
+    .rules-modal .result-modal {
+      max-height: min(650px, calc(100vh - 40px));
+      overflow-y: auto;
+      text-align: left;
+    }
+
+    .rules-modal .result-title {
+      text-align: center;
+    }
+
+    .modal-close {
+      position: absolute;
+      top: 14px;
+      right: 14px;
+      display: grid;
+      width: 34px;
+      height: 34px;
+      place-items: center;
+      border: 0;
+      border-radius: 50%;
+      background: rgba(42, 37, 31, 0.06);
+      color: var(--ink-soft);
+      cursor: pointer;
+      font-size: 18px;
+    }
+
+    .rule-list-large {
+      display: grid;
+      gap: 17px;
+      margin: 24px 0 8px;
+    }
+
+    .rule-large {
+      display: grid;
+      grid-template-columns: 40px 1fr;
+      gap: 12px;
+      align-items: start;
+    }
+
+    .rule-large-icon {
+      display: grid;
+      width: 38px;
+      height: 38px;
+      place-items: center;
+      border: 1px solid var(--line);
+      border-radius: 12px;
+      background: rgba(243, 238, 227, 0.7);
+      font: 700 18px/1 var(--kai);
+    }
+
+    .rule-large h3 {
+      margin: 0;
+      font-size: 13px;
+    }
+
+    .rule-large p {
+      margin: 4px 0 0;
+      color: var(--ink-soft);
+      font-size: 11px;
+      line-height: 1.7;
+    }
+
+    .confetti {
+      position: fixed;
+      z-index: 99;
+      width: 7px;
+      height: 13px;
+      border-radius: 2px;
+      pointer-events: none;
+      animation: confetti-fall 1.6s cubic-bezier(0.2, 0.6, 0.35, 1) forwards;
+    }
+
+    body,
+    button,
+    button:disabled,
+    a,
+    .cell,
+    .cell:hover:not(.is-claimed) {
+      cursor: var(--cursor-arrow);
+    }
+
+    .cell.is-active .ink-canvas {
+      cursor: var(--cursor-crosshair);
+    }
+
+    @keyframes confetti-fall {
+      from { opacity: 1; transform: translate3d(0, -20px, 0) rotate(0); }
+      to { opacity: 0; transform: translate3d(var(--drift), 100vh, 0) rotate(var(--spin)); }
+    }
+
+    @media (max-width: 1100px) {
+      .app {
+        width: min(830px, calc(100% - 32px));
+      }
+
+      .game-layout {
+        grid-template-columns: 1fr;
+      }
+
+      .sidebar {
+        grid-template-columns: 1.1fr 0.9fr;
+      }
+
+      .sidebar .local-note {
+        grid-column: 1 / -1;
+      }
+    }
+
+    @media (max-width: 680px) {
+      .app {
+        width: min(100% - 18px, 620px);
+        padding-top: 13px;
+      }
+
+      .topbar {
+        padding-bottom: 11px;
+      }
+
+      .brand-sub,
+      .top-actions .quiet-button span:last-child {
+        display: none;
+      }
+
+      .top-actions .quiet-button {
+        width: 40px;
+        padding: 0;
+      }
+
+      .hero {
+        grid-template-columns: 1fr;
+        margin-top: 8px;
+        margin-bottom: 17px;
+      }
+
+      h1 {
+        font-size: clamp(40px, 12vw, 55px);
+      }
+
+      .hero-copy {
+        font-size: 12px;
+        line-height: 1.6;
+      }
+
+      .round-counter {
+        display: none;
+      }
+
+      .game-card {
+        padding: 10px;
+        border-radius: 22px;
+      }
+
+      .scorebar {
+        gap: 6px;
+      }
+
+      .player-card {
+        min-height: 59px;
+        gap: 7px;
+        padding: 8px;
+        border-radius: 13px;
+      }
+
+      .avatar {
+        flex-basis: 34px;
+        width: 34px;
+        height: 34px;
+        font-size: 17px;
+      }
+
+      .player-name {
+        font-size: 11px;
+      }
+
+      .player-score {
+        font-size: 9px;
+      }
+
+      .player-card.is-active::after {
+        display: none;
+      }
+
+      .score-divider {
+        width: 30px;
+      }
+
+      .turn-strip {
+        padding: 0 2px;
+      }
+
+      .legend {
+        display: none;
+      }
+
+      .board-stage {
+        padding: 7px;
+        border-radius: 17px;
+      }
+
+      .board {
+        border-radius: 11px;
+      }
+
+      .pinyin {
+        top: 6px;
+        left: 7px;
+        font-size: clamp(14px, 4.6vw, 19px);
+      }
+
+      .cell.is-active::after {
+        right: 5px;
+        bottom: 5px;
+        font-size: 7px;
+      }
+
+      .cell-stamp {
+        right: 5px;
+        bottom: 5px;
+        width: 22px;
+        height: 22px;
+        font-size: 10px;
+      }
+
+      .sidebar {
+        grid-template-columns: 1fr;
+      }
+
+      .panel {
+        padding: 16px;
+        border-radius: 18px;
+      }
+
+      .task-title {
+        font-size: 22px;
+      }
+
+      .rules-panel {
+        display: none;
+      }
+    }
+
+    @media (prefers-reduced-motion: reduce) {
+      *,
+      *::before,
+      *::after {
+        scroll-behavior: auto !important;
+        animation-duration: 0.01ms !important;
+        animation-iteration-count: 1 !important;
+        transition-duration: 0.01ms !important;
+      }
+    }
+  </style>
+</head>
+<body>
+  <div class="app">
+    <header class="topbar">
+          <div class="brand" aria-label="Три в ряд">
+        <div class="brand-seal" aria-hidden="true">3</div>
+        <div>
+          <div class="brand-name">Иероглифы</div>
+          <div class="brand-sub">Игра на двоих · крестики-нолики</div>
+        </div>
+      </div>
+      <div class="top-actions">
+        <button class="quiet-button" id="rulesButton" type="button" aria-label="Правила игры">
+          <span aria-hidden="true">？</span><span>Правила</span>
+        </button>
+        <button class="icon-button" id="soundButton" type="button" aria-label="Выключить звук" title="Звук">
+          <span id="soundIcon" aria-hidden="true">♪</span>
+        </button>
+      </div>
+    </header>
+
+    <main>
+      <section class="hero" aria-labelledby="pageTitle">
+        <div>
+          <div class="eyebrow">Иероглифы от руки · игра на двоих</div>
+          <h1 id="pageTitle">Напишите иероглифы — <span class="accent">соберите три.</span></h1>
+          <p class="hero-copy">В каждой клетке дан только пиньинь. Напишите соответствующий иероглиф от руки — и клетка ваша. Кто первым займёт три клетки по горизонтали, вертикали или диагонали, выигрывает партию.</p>
+        </div>
+        <div class="round-counter">
+          <span>Текущий раунд</span>
+          <strong id="roundNumber">Раунд 01</strong>
+        </div>
+      </section>
+
+      <div class="game-layout">
+        <section class="game-card" aria-label="Доска с иероглифами">
+          <div class="scorebar">
+            <article class="player-card player-one is-active" id="playerCard1">
+              <div class="avatar">1</div>
+              <div>
+                <p class="player-name">Игрок 1</p>
+                <div class="player-score">Побед: <span id="score1">0</span></div>
+              </div>
+            </article>
+            <div class="score-divider" aria-hidden="true">VS</div>
+            <article class="player-card player-two" id="playerCard2">
+              <div class="avatar">2</div>
+              <div>
+                <p class="player-name">Игрок 2</p>
+                <div class="player-score">Побед: <span id="score2">0</span></div>
+              </div>
+            </article>
+          </div>
+
+          <div class="turn-strip">
+            <div class="turn-copy">
+              <span class="turn-dot" id="turnDot" aria-hidden="true"></span>
+              <span id="turnText"><strong>Игрок 1</strong>, выберите клетку</span>
+            </div>
+            <div class="legend" aria-hidden="true">
+              <span>Три в ряд</span>
+              <span class="legend-line"></span>
+            </div>
+          </div>
+
+          <div class="board-stage">
+            <div class="board" id="board" role="grid" aria-label="Сетка три на три с иероглифами">
+              <div class="grid-line vertical v1"></div>
+              <div class="grid-line vertical v2"></div>
+              <div class="grid-line horizontal h1"></div>
+              <div class="grid-line horizontal h2"></div>
+            </div>
+          </div>
+          <div class="board-tip"><span></span>Пишите мышью, стилусом или пальцем<span></span></div>
+        </section>
+
+        <aside class="sidebar">
+          <section class="panel" aria-labelledby="taskTitle">
+            <div class="panel-label">Ход и письмо</div>
+            <div class="theme-row">
+              <span>Тема раунда</span>
+              <strong id="themeName">Случайная подборка</strong>
+            </div>
+            <h2 class="task-title" id="taskTitle">Сначала выберите клетку</h2>
+            <div class="task-copy" id="taskCopy">Нажмите на свободную клетку, посмотрите пиньинь и напишите иероглиф от руки.</div>
+            <div class="write-actions">
+              <button class="primary-button" id="checkButton" type="button" disabled>
+                <span aria-hidden="true">✓</span> Проверить письмо
+              </button>
+              <button class="clear-button" id="clearButton" type="button" aria-label="Очистить клетку" title="Очистить клетку" disabled>↺</button>
+            </div>
+            <div class="hint-row">
+              <div class="feedback" id="feedback" aria-live="polite">Письмо пока не начато</div>
+              <button class="hint-button" id="hintButton" type="button" disabled>Подсказка</button>
+            </div>
+          </section>
+
+          <section class="panel rules-panel" aria-label="Правила игры">
+            <div class="panel-label">Как играть</div>
+            <div class="rule">
+              <div class="rule-number">1</div>
+              <p>Выберите клетку и напишите <strong>один иероглиф</strong> по её пиньиню.</p>
+            </div>
+            <div class="rule">
+              <div class="rule-number">2</div>
+              <p>Верное написание занимает клетку. При ошибке ход не переходит — можно очистить и переписать.</p>
+            </div>
+            <div class="rule">
+              <div class="rule-number">3</div>
+              <p>Побеждает тот, кто первым займёт <strong>три клетки в ряд</strong>.</p>
+            </div>
+          </section>
+
+          <div class="local-note"><span class="lock"></span>Распознавание на устройстве · рисунки не загружаются</div>
+        </aside>
+      </div>
+    </main>
+  </div>
+
+  <div class="toast" id="toast" role="status" aria-live="polite">
+    <div class="toast-icon" id="toastIcon">✓</div>
+    <div id="toastText">Верное написание</div>
+  </div>
+
+  <div class="modal-backdrop" id="resultBackdrop" aria-hidden="true">
+    <section class="result-modal" role="dialog" aria-modal="true" aria-labelledby="resultTitle">
+      <div class="result-seal" id="resultSeal">П</div>
+      <p class="result-kicker" id="resultKicker">Раунд окончен</p>
+      <h2 class="result-title" id="resultTitle">Игрок 1 побеждает</h2>
+      <p class="result-copy" id="resultCopy">Три иероглифа составили линию.</p>
+      <div class="result-actions">
+        <button class="secondary-button" id="nextRoundButton" type="button">Следующий раунд</button>
+        <button class="primary-button" id="resetScoresButton" type="button">Сбросить счёт</button>
+      </div>
+    </section>
+  </div>
+
+  <div class="modal-backdrop rules-modal" id="rulesBackdrop" aria-hidden="true">
+    <section class="result-modal" role="dialog" aria-modal="true" aria-labelledby="rulesTitle">
+      <button class="modal-close" id="closeRulesButton" type="button" aria-label="Закрыть правила">×</button>
+      <p class="result-kicker">КАК ИГРАТЬ</p>
+      <h2 class="result-title" id="rulesTitle">Составьте свою линию</h2>
+      <div class="rule-list-large">
+        <div class="rule-large">
+          <div class="rule-large-icon">С</div>
+          <div>
+            <h3>Смотрите на пиньинь</h3>
+            <p>Пиньинь указан в верхней части каждой клетки. Игрок 1 пишет красным, Игрок 2 — синим.</p>
+          </div>
+        </div>
+        <div class="rule-large">
+          <div class="rule-large-icon">П</div>
+          <div>
+            <h3>Пишите от руки</h3>
+            <p>Выберите клетку и напишите нужный иероглиф мышью, стилусом или пальцем. Пишите обычные штрихи, не обводите контур.</p>
+          </div>
+        </div>
+        <div class="rule-large">
+          <div class="rule-large-icon">Л</div>
+          <div>
+            <h3>Соединяйте клетки</h3>
+            <p>Игра локально сравнивает форму знака. Верно написанная клетка переходит к вам. Три занятые клетки подряд дают победу.</p>
+          </div>
+        </div>
+      </div>
+      <div class="local-note"><span class="lock"></span>Сравнение штрихов выполняется на этом устройстве</div>
+    </section>
+  </div>
+
+  <script>
+    (() => {
+      "use strict";
+
+      const CARD_DECKS = [
+        {
+          name: "Повседневные слова",
+          cards: [
+            { pinyin: "ài", char: "爱", meaning: "любовь", strokeCount: 10 },
+            { pinyin: "gǎn", char: "感", meaning: "чувство, ощущение", strokeCount: 13 },
+            { pinyin: "shā", char: "沙", meaning: "песок", strokeCount: 7 },
+            { pinyin: "yǎn", char: "眼", meaning: "глаз", strokeCount: 11 },
+            { pinyin: "dài", char: "带", meaning: "приносить, пояс", strokeCount: 9 },
+            { pinyin: "yuàn", char: "院", meaning: "двор", strokeCount: 9 },
+            { pinyin: "bàn", char: "半", meaning: "половина", strokeCount: 5 },
+            { pinyin: "bǎo", char: "饱", meaning: "сытый", strokeCount: 8 },
+            { pinyin: "xī", char: "希", meaning: "надежда", strokeCount: 7 }
+          ]
+        },
+        {
+          name: "Люди и размеры",
+          cards: [
+            { pinyin: "nǐ", char: "你", meaning: "ты", strokeCount: 7 },
+            { pinyin: "wǒ", char: "我", meaning: "я", strokeCount: 7 },
+            { pinyin: "tā", char: "他", meaning: "он", strokeCount: 5 },
+            { pinyin: "rén", char: "人", meaning: "человек", strokeCount: 2 },
+            { pinyin: "dà", char: "大", meaning: "большой", strokeCount: 3 },
+            { pinyin: "xiǎo", char: "小", meaning: "маленький", strokeCount: 3 },
+            { pinyin: "shàng", char: "上", meaning: "верх, наверху", strokeCount: 3 },
+            { pinyin: "xià", char: "下", meaning: "низ, внизу", strokeCount: 3 },
+            { pinyin: "zhōng", char: "中", meaning: "середина", strokeCount: 4 }
+          ]
+        },
+        {
+          name: "Природа",
+          cards: [
+            { pinyin: "tiān", char: "天", meaning: "небо, день", strokeCount: 4 },
+            { pinyin: "dì", char: "地", meaning: "земля", strokeCount: 6 },
+            { pinyin: "shān", char: "山", meaning: "гора", strokeCount: 3 },
+            { pinyin: "shuǐ", char: "水", meaning: "вода", strokeCount: 4 },
+            { pinyin: "huǒ", char: "火", meaning: "огонь", strokeCount: 4 },
+            { pinyin: "mù", char: "木", meaning: "дерево", strokeCount: 4 },
+            { pinyin: "rì", char: "日", meaning: "солнце", strokeCount: 4 },
+            { pinyin: "yuè", char: "月", meaning: "луна, месяц", strokeCount: 4 },
+            { pinyin: "fēng", char: "风", meaning: "ветер", strokeCount: 4 }
+          ]
+        },
+        {
+          name: "Учёба",
+          cards: [
+            { pinyin: "xué", char: "学", meaning: "учиться", strokeCount: 8 },
+            { pinyin: "xí", char: "习", meaning: "практиковать", strokeCount: 3 },
+            { pinyin: "shū", char: "书", meaning: "книга", strokeCount: 4 },
+            { pinyin: "xiě", char: "写", meaning: "писать", strokeCount: 5 },
+            { pinyin: "dú", char: "读", meaning: "читать", strokeCount: 10 },
+            { pinyin: "kàn", char: "看", meaning: "смотреть", strokeCount: 9 },
+            { pinyin: "shuō", char: "说", meaning: "говорить", strokeCount: 9 },
+            { pinyin: "tīng", char: "听", meaning: "слушать", strokeCount: 7 },
+            { pinyin: "xiǎng", char: "想", meaning: "думать", strokeCount: 13 }
+          ]
+        },
+        {
+          name: "Вокруг нас",
+          cards: [
+            { pinyin: "jiā", char: "家", meaning: "дом, семья", strokeCount: 10 },
+            { pinyin: "mén", char: "门", meaning: "дверь", strokeCount: 3 },
+            { pinyin: "lù", char: "路", meaning: "дорога", strokeCount: 13 },
+            { pinyin: "chē", char: "车", meaning: "машина", strokeCount: 4 },
+            { pinyin: "huā", char: "花", meaning: "цветок", strokeCount: 7 },
+            { pinyin: "cǎo", char: "草", meaning: "трава", strokeCount: 9 },
+            { pinyin: "niǎo", char: "鸟", meaning: "птица", strokeCount: 5 },
+            { pinyin: "yú", char: "鱼", meaning: "рыба", strokeCount: 8 },
+            { pinyin: "yǔ", char: "雨", meaning: "дождь", strokeCount: 8 }
+          ]
+        }
+      ];
+
+      const ALL_QUESTIONS = CARD_DECKS.flatMap((deck) => (
+        deck.cards.map((card) => ({ ...card, theme: deck.name }))
+      ));
+      const QUESTIONS_PER_ROUND = 9;
+      let usedQuestionCharacters = new Set();
+      let CARDS = [];
+
+      const CELL_SIZE = 360;
+      const NORM_SIZE = 144;
+      const INNER_SIZE = 112;
+      const LINE_WIDTH = 11;
+      const PASS_SCORE = 0.56;
+      const PLAYER_NAMES = ["Игрок 1", "Игрок 2"];
+      const PLAYER_INK = ["#b7463e", "#426884"];
+      const WIN_LINES = [
+        [0, 1, 2], [3, 4, 5], [6, 7, 8],
+        [0, 3, 6], [1, 4, 7], [2, 5, 8],
+        [0, 4, 8], [2, 4, 6]
+      ];
+
+      const boardElement = document.getElementById("board");
+      const playerCards = [
+        document.getElementById("playerCard1"),
+        document.getElementById("playerCard2")
+      ];
+      const scoreElements = [
+        document.getElementById("score1"),
+        document.getElementById("score2")
+      ];
+      const turnDot = document.getElementById("turnDot");
+      const turnText = document.getElementById("turnText");
+      const taskTitle = document.getElementById("taskTitle");
+      const taskCopy = document.getElementById("taskCopy");
+      const themeName = document.getElementById("themeName");
+      const checkButton = document.getElementById("checkButton");
+      const clearButton = document.getElementById("clearButton");
+      const hintButton = document.getElementById("hintButton");
+      const feedback = document.getElementById("feedback");
+      const roundNumber = document.getElementById("roundNumber");
+      const toast = document.getElementById("toast");
+      const toastIcon = document.getElementById("toastIcon");
+      const toastText = document.getElementById("toastText");
+      const soundButton = document.getElementById("soundButton");
+      const soundIcon = document.getElementById("soundIcon");
+      const resultBackdrop = document.getElementById("resultBackdrop");
+      const resultSeal = document.getElementById("resultSeal");
+      const resultKicker = document.getElementById("resultKicker");
+      const resultTitle = document.getElementById("resultTitle");
+      const resultCopy = document.getElementById("resultCopy");
+      const nextRoundButton = document.getElementById("nextRoundButton");
+      const resetScoresButton = document.getElementById("resetScoresButton");
+      const rulesBackdrop = document.getElementById("rulesBackdrop");
+
+      let currentPlayer = 0;
+      let activeCell = null;
+      let owners = Array(9).fill(null);
+      let cellElements = [];
+      let inkCanvases = [];
+      let ghostCanvases = [];
+      let drawings = Array.from({ length: 9 }, () => []);
+      let drawing = null;
+      let round = 1;
+      let scores = [0, 0];
+      let gameOver = false;
+      let soundEnabled = true;
+      let toastTimer = null;
+      let audioContext = null;
+      let failCount = 0;
+      let hintMode = false;
+      let templateCache = new Map();
+
+      try {
+        const saved = JSON.parse(localStorage.getItem("sanzichengju-scores-v1") || "null");
+        if (saved && Array.isArray(saved.scores)) {
+          scores = saved.scores.slice(0, 2).map((n) => Math.max(0, Number(n) || 0));
+        }
+      } catch (_) {
+        // A blocked localStorage should never prevent the game from starting.
+      }
+
+      CARDS = takeRandomQuestions();
+
+      function shuffleQuestions(questions) {
+        const shuffled = questions.slice();
+        for (let index = shuffled.length - 1; index > 0; index -= 1) {
+          const randomIndex = Math.floor(Math.random() * (index + 1));
+          [shuffled[index], shuffled[randomIndex]] = [shuffled[randomIndex], shuffled[index]];
+        }
+        return shuffled;
+      }
+
+      function takeRandomQuestions() {
+        let available = ALL_QUESTIONS.filter((card) => !usedQuestionCharacters.has(card.char));
+        if (available.length < QUESTIONS_PER_ROUND) {
+          usedQuestionCharacters.clear();
+          available = ALL_QUESTIONS.slice();
+        }
+        const selected = shuffleQuestions(available).slice(0, QUESTIONS_PER_ROUND);
+        selected.forEach((card) => usedQuestionCharacters.add(card.char));
+        return selected;
+      }
+
+      function setRoundQuestions(nextCards) {
+        CARDS = nextCards;
+        themeName.textContent = "Случайная подборка";
+        cellElements.forEach((cell, index) => {
+          const card = CARDS[index];
+          const pinyinElement = cell.querySelector(".pinyin > span");
+          if (pinyinElement) pinyinElement.textContent = card.pinyin;
+          cell.setAttribute("aria-label", `Клетка ${index + 1}, пиньинь ${card.pinyin}`);
+          inkCanvases[index].setAttribute("aria-label", `Напишите иероглиф для ${card.pinyin}`);
+        });
+      }
+
+      function createBoard() {
+        CARDS.forEach((card, index) => {
+          const cell = document.createElement("div");
+          cell.className = "cell";
+          cell.dataset.index = String(index);
+          cell.style.gridRow = String(Math.floor(index / 3) + 1);
+          cell.style.gridColumn = String((index % 3) + 1);
+          cell.setAttribute("role", "gridcell");
+          cell.setAttribute("tabindex", "0");
+          cell.setAttribute("aria-label", `Клетка ${index + 1}, пиньинь ${card.pinyin}`);
+
+          const pinyin = document.createElement("div");
+          pinyin.className = "pinyin";
+          pinyin.innerHTML = `<span>${card.pinyin}</span><span class="pinyin-mark"></span>`;
+
+          const stack = document.createElement("div");
+          stack.className = "canvas-stack";
+
+          const ghost = document.createElement("canvas");
+          ghost.className = "ghost-canvas";
+          ghost.width = CELL_SIZE;
+          ghost.height = CELL_SIZE;
+          ghost.setAttribute("aria-hidden", "true");
+
+          const ink = document.createElement("canvas");
+          ink.className = "ink-canvas";
+          ink.width = CELL_SIZE;
+          ink.height = CELL_SIZE;
+          ink.setAttribute("aria-label", `Напишите иероглиф для ${card.pinyin}`);
+
+          const stamp = document.createElement("div");
+          stamp.className = "cell-stamp";
+          stamp.setAttribute("aria-hidden", "true");
+          stamp.textContent = "✓";
+
+          stack.append(ghost, ink);
+          cell.append(pinyin, stack, stamp);
+          boardElement.append(cell);
+
+          cellElements.push(cell);
+          ghostCanvases.push(ghost);
+          inkCanvases.push(ink);
+
+          cell.addEventListener("click", () => selectCell(index));
+          cell.addEventListener("keydown", (event) => {
+            if (event.key === "Enter" || event.key === " ") {
+              event.preventDefault();
+              selectCell(index);
+            }
+          });
+
+          ink.addEventListener("pointerdown", (event) => startStroke(event, index));
+          ink.addEventListener("pointermove", moveStroke);
+          ink.addEventListener("pointerup", endStroke);
+          ink.addEventListener("pointercancel", endStroke);
+          ink.addEventListener("pointerleave", (event) => {
+            if (drawing && drawing.pointerId === event.pointerId && event.buttons === 0) {
+              endStroke(event);
+            }
+          });
+        });
+      }
+
+      function saveScores() {
+        try {
+        localStorage.setItem("sanzichengju-scores-v1", JSON.stringify({ scores }));
+        } catch (_) {
+          // Score persistence is optional.
+        }
+      }
+
+      function updateScores() {
+        scoreElements[0].textContent = String(scores[0]);
+        scoreElements[1].textContent = String(scores[1]);
+        roundNumber.textContent = `Раунд ${String(round).padStart(2, "0")}`;
+      }
+
+      function updateTurnInterface() {
+        playerCards.forEach((card, index) => card.classList.toggle("is-active", index === currentPlayer && !gameOver));
+        turnDot.classList.toggle("blue", currentPlayer === 1);
+        checkButton.classList.toggle("is-blue", currentPlayer === 1);
+        document.body.classList.toggle("player-blue-copy", currentPlayer === 1);
+
+        if (!activeCell && !gameOver) {
+          turnText.innerHTML = `<strong>${PLAYER_NAMES[currentPlayer]}</strong>, выберите клетку`;
+        }
+        selectHintColor();
+      }
+
+      function selectHintColor() {
+        playerCards.forEach((card) => card.style.setProperty("--player-color", PLAYER_INK[currentPlayer]));
+      }
+
+      function selectCell(index) {
+        if (gameOver || owners[index] !== null) return;
+        const changed = activeCell !== index;
+        activeCell = index;
+        if (changed) {
+          failCount = 0;
+          hintMode = false;
+        }
+        cellElements.forEach((cell, cellIndex) => {
+          const active = cellIndex === index;
+          cell.classList.toggle("is-active", active);
+          cell.classList.toggle("is-blue", active && currentPlayer === 1);
+          cell.setAttribute("aria-selected", active ? "true" : "false");
+        });
+        ghostCanvases[index].classList.toggle("is-visible", hintMode);
+        updateActiveCellCopy();
+        updateActions();
+        updateTurnInterface();
+        inkCanvases[index].focus?.({ preventScroll: true });
+      }
+
+      function updateActiveCellCopy() {
+        if (activeCell === null) {
+          turnText.innerHTML = `<strong>${PLAYER_NAMES[currentPlayer]}</strong>, выберите клетку`;
+          taskTitle.textContent = "Сначала выберите клетку";
+          taskCopy.textContent = "Нажмите на свободную клетку, посмотрите пиньинь и напишите иероглиф от руки.";
+          return;
+        }
+
+        const card = CARDS[activeCell];
+        turnText.innerHTML = `<strong>${PLAYER_NAMES[currentPlayer]}</strong>: пишем <strong>${card.pinyin}</strong>`;
+        taskTitle.innerHTML = `Напишите <span class="big-pinyin">${card.pinyin}</span>`;
+        taskCopy.innerHTML = "По этому пиньиню напишите иероглиф в выбранной клетке. <strong>Верное написание закрепит клетку за вами.</strong>";
+      }
+
+      function updateActions() {
+        const hasInk = activeCell !== null && drawings[activeCell].length > 0;
+        checkButton.disabled = gameOver || !hasInk;
+        clearButton.disabled = gameOver || !hasInk;
+        hintButton.disabled = gameOver || activeCell === null || owners[activeCell] !== null;
+      }
+
+      function startStroke(event, index) {
+        if (gameOver || owners[index] !== null) return;
+        event.preventDefault();
+        if (activeCell !== index) selectCell(index);
+        const canvas = inkCanvases[index];
+        setIsWriting(index, true);
+        canvas.setPointerCapture?.(event.pointerId);
+        const point = canvasPoint(canvas, event);
+        const stroke = [point];
+        drawings[index].push(stroke);
+        drawing = { index, pointerId: event.pointerId, stroke };
+        renderInk(index);
+        updateActions();
+        feedback.textContent = "Закончили? Нажмите «Проверить письмо»";
+        setGhostVisible(index, false);
+        playTone(410, 0.025, 0.018);
+      }
+
+      function moveStroke(event) {
+        if (!drawing || drawing.pointerId !== event.pointerId) return;
+        event.preventDefault();
+        const points = drawing.stroke;
+        const point = canvasPoint(inkCanvases[drawing.index], event);
+        const previous = points[points.length - 1];
+        if (Math.hypot(point.x - previous.x, point.y - previous.y) < 1.2) return;
+        points.push(point);
+
+        const context = inkCanvases[drawing.index].getContext("2d");
+        context.strokeStyle = PLAYER_INK[currentPlayer];
+        context.lineWidth = LINE_WIDTH;
+        context.lineCap = "round";
+        context.lineJoin = "round";
+        context.beginPath();
+        context.moveTo(previous.x, previous.y);
+        context.lineTo(point.x, point.y);
+        context.stroke();
+      }
+
+      function endStroke(event) {
+        if (!drawing || (event && drawing.pointerId !== event.pointerId)) return;
+        if (event) event.preventDefault();
+        const index = drawing.index;
+        inkCanvases[index].releasePointerCapture?.(drawing.pointerId);
+        drawing = null;
+        setIsWriting(index, false);
+        updateActions();
+      }
+
+      function setIsWriting(index, state) {
+        cellElements[index].classList.toggle("is-writing", state);
+      }
+
+      function canvasPoint(canvas, event) {
+        const rect = canvas.getBoundingClientRect();
+        return {
+          x: (event.clientX - rect.left) * (CELL_SIZE / rect.width),
+          y: (event.clientY - rect.top) * (CELL_SIZE / rect.height)
+        };
+      }
+
+      function renderInk(index) {
+        const context = inkCanvases[index].getContext("2d");
+        context.clearRect(0, 0, CELL_SIZE, CELL_SIZE);
+        context.strokeStyle = PLAYER_INK[currentPlayer];
+        context.fillStyle = PLAYER_INK[currentPlayer];
+        context.lineWidth = LINE_WIDTH;
+        context.lineCap = "round";
+        context.lineJoin = "round";
+
+        drawings[index].forEach((stroke) => {
+          if (stroke.length === 1) {
+            context.beginPath();
+            context.arc(stroke[0].x, stroke[0].y, LINE_WIDTH * 0.44, 0, Math.PI * 2);
+            context.fill();
+            return;
+          }
+          context.beginPath();
+          context.moveTo(stroke[0].x, stroke[0].y);
+          for (let pointIndex = 1; pointIndex < stroke.length; pointIndex += 1) {
+            context.lineTo(stroke[pointIndex].x, stroke[pointIndex].y);
+          }
+          context.stroke();
+        });
+      }
+
+      function clearActiveCell() {
+        if (activeCell === null || gameOver) return;
+        drawings[activeCell] = [];
+        renderInk(activeCell);
+        hintMode = false;
+        failCount = 0;
+        setGhostVisible(activeCell, false);
+        feedback.textContent = "Клетка очищена — можно писать заново";
+        updateActions();
+        playTone(260, 0.045, 0.018);
+      }
+
+      function showHint() {
+        if (activeCell === null || gameOver) return;
+        hintMode = true;
+        drawGhost(activeCell, true);
+        setGhostVisible(activeCell, true);
+        feedback.innerHTML = CARDS[activeCell].meaning;
+        playTone(560, 0.06, 0.015);
+      }
+
+      function setGhostVisible(index, visible) {
+        if (visible) drawGhost(index, false);
+        ghostCanvases[index].classList.toggle("is-visible", visible);
+      }
+
+      function drawGhost(index, force) {
+        if (!force && ghostCanvases[index].dataset.ready === "1") return;
+        const context = ghostCanvases[index].getContext("2d");
+        context.clearRect(0, 0, CELL_SIZE, CELL_SIZE);
+        context.fillStyle = PLAYER_INK[currentPlayer];
+        context.textAlign = "center";
+        context.textBaseline = "middle";
+        context.font = `700 ${CELL_SIZE * 0.58}px "KaiTi", "STKaiti", serif`;
+        context.fillText(CARDS[index].char, CELL_SIZE / 2, CELL_SIZE * 0.55);
+        ghostCanvases[index].dataset.ready = "1";
+      }
+
+      function checkWriting() {
+        if (activeCell === null || drawings[activeCell].length === 0 || gameOver) return;
+        const index = activeCell;
+        const card = CARDS[index];
+        let result;
+
+        try {
+          result = recognize(drawings[index], card.char);
+        } catch (error) {
+          console.error(error);
+          result = { score: 1, accepted: true };
+        }
+
+        if (result.accepted) {
+          claimCell(index, result);
+        } else {
+          failCount += 1;
+          cellElements[index].classList.remove("shake");
+          void cellElements[index].offsetWidth;
+          cellElements[index].classList.add("shake");
+          feedback.textContent = failCount >= 2
+            ? "Очень близко. Показан бледный образец — повторите написание точнее."
+            : "Форма пока не совпадает. Очистите клетку и попробуйте ещё раз.";
+          showToast(failCount >= 2 ? "Попробуйте ещё раз: нужны более точные штрихи" : "Форма не совпала, перепишите", false);
+          if (failCount >= 2) {
+            hintMode = true;
+            setGhostVisible(index, true);
+          }
+          playTone(160, 0.1, 0.025);
+        }
+      }
+
+      function claimCell(index, result) {
+        const player = currentPlayer;
+        owners[index] = player;
+        const cell = cellElements[index];
+        cell.classList.remove("is-active", "is-blue", "is-writing");
+        cell.classList.add("is-claimed", player === 1 ? "player-blue" : "player-one");
+        cell.setAttribute("aria-label", `Клетка ${index + 1}, пиньинь ${CARDS[index].pinyin}. Занята: ${PLAYER_NAMES[player]}`);
+        activeCell = null;
+        hintMode = false;
+        failCount = 0;
+        setGhostVisible(index, false);
+        taskTitle.textContent = "Клетка занята";
+        taskCopy.innerHTML = `<strong>${CARDS[index].char}</strong> · ${CARDS[index].meaning}. ${PLAYER_NAMES[player]} забирает клетку.`;
+        feedback.textContent = `Совпадение формы: ${Math.round(result.score * 100)}%`;
+        updateActions();
+        playSuccessSound();
+
+        const winLine = findWinningLine(player);
+        if (winLine) {
+          finishRound(player, winLine);
+          return;
+        }
+
+        if (owners.every((owner) => owner !== null)) {
+          finishRound(null, []);
+          return;
+        }
+
+        clearUnclaimedDrafts();
+        showToast(`${CARDS[index].char} · Верно! ${PLAYER_NAMES[player]} забирает клетку`, true);
+        currentPlayer = 1 - currentPlayer;
+        updateTurnInterface();
+        updateActiveCellCopy();
+      }
+
+      function clearUnclaimedDrafts() {
+        drawings.forEach((strokes, index) => {
+          if (owners[index] !== null) return;
+          drawings[index] = [];
+          renderInk(index);
+          ghostCanvases[index].dataset.ready = "";
+          ghostCanvases[index].classList.remove("is-visible");
+          ghostCanvases[index].getContext("2d").clearRect(0, 0, CELL_SIZE, CELL_SIZE);
+        });
+      }
+
+      function findWinningLine(player) {
+        return WIN_LINES.find((line) => line.every((index) => owners[index] === player)) || null;
+      }
+
+      function finishRound(winner, line) {
+        gameOver = true;
+        drawings.forEach((_, index) => setGhostVisible(index, false));
+        cellElements.forEach((cell) => {
+          cell.classList.remove("is-active", "is-blue");
+          cell.setAttribute("aria-selected", "false");
+        });
+        activeCell = null;
+        updateActions();
+        updateTurnInterface();
+
+        if (winner !== null) {
+          scores[winner] += 1;
+          line.forEach((index) => cellElements[index].classList.add("is-winning"));
+          resultSeal.textContent = "П";
+          resultKicker.textContent = "Три иероглифа в ряд";
+          resultTitle.textContent = `${PLAYER_NAMES[winner]} побеждает`;
+          resultCopy.textContent = "Три иероглифа составили линию. В следующем раунде будут новые задания, а первым начнёт другой игрок.";
+          document.querySelector(".result-modal").classList.toggle("is-blue", winner === 1);
+          createConfetti(winner);
+        } else {
+          resultSeal.textContent = "Н";
+          resultKicker.textContent = "Доска заполнена";
+          resultTitle.textContent = "Ничья";
+          resultCopy.textContent = "Все девять клеток заняты, но линия из трёх не сложилась.";
+          document.querySelector(".result-modal").classList.remove("is-blue");
+        }
+
+        turnText.innerHTML = winner === null
+          ? "<strong>Ничья</strong>. Сыграем ещё?"
+          : `<strong>${PLAYER_NAMES[winner]}</strong> собирает три клетки и выигрывает партию`;
+        saveScores();
+        updateScores();
+        window.setTimeout(() => openModal(resultBackdrop), 720);
+      }
+
+      function startNextRound() {
+        closeModal(resultBackdrop);
+        round += 1;
+        setRoundQuestions(takeRandomQuestions());
+        const previousStarter = currentPlayer;
+        currentPlayer = gameOver ? 1 - previousStarter : currentPlayer;
+        owners = Array(9).fill(null);
+        drawings = Array.from({ length: 9 }, () => []);
+        activeCell = null;
+        gameOver = false;
+        hintMode = false;
+        failCount = 0;
+        cellElements.forEach((cell, index) => {
+          cell.className = "cell";
+          cell.setAttribute("aria-selected", "false");
+          cell.setAttribute("aria-label", `Клетка ${index + 1}, пиньинь ${CARDS[index].pinyin}`);
+          ghostCanvases[index].dataset.ready = "";
+          ghostCanvases[index].classList.remove("is-visible");
+          const ghostContext = ghostCanvases[index].getContext("2d");
+          ghostContext.clearRect(0, 0, CELL_SIZE, CELL_SIZE);
+          const inkContext = inkCanvases[index].getContext("2d");
+          inkContext.clearRect(0, 0, CELL_SIZE, CELL_SIZE);
+        });
+        document.querySelector(".result-modal").classList.remove("is-blue");
+        updateScores();
+        updateTurnInterface();
+        updateActiveCellCopy();
+        updateActions();
+        feedback.textContent = "Новый раунд: новые задания. Выберите клетку";
+        saveScores();
+        playTone(520, 0.07, 0.02);
+      }
+
+      function resetAllScores() {
+        scores = [0, 0];
+        round = 1;
+        usedQuestionCharacters.clear();
+        setRoundQuestions(takeRandomQuestions());
+        currentPlayer = 0;
+        gameOver = false;
+        activeCell = null;
+        owners = Array(9).fill(null);
+        drawings = Array.from({ length: 9 }, () => []);
+        cellElements.forEach((cell, index) => {
+          cell.className = "cell";
+          ghostCanvases[index].dataset.ready = "";
+          ghostCanvases[index].classList.remove("is-visible");
+          ghostCanvases[index].getContext("2d").clearRect(0, 0, CELL_SIZE, CELL_SIZE);
+          inkCanvases[index].getContext("2d").clearRect(0, 0, CELL_SIZE, CELL_SIZE);
+        });
+        closeModal(resultBackdrop);
+        saveScores();
+        updateScores();
+        updateTurnInterface();
+        updateActiveCellCopy();
+        updateActions();
+        feedback.textContent = "Счёт сброшен";
+      }
+
+      function showToast(message, good) {
+        window.clearTimeout(toastTimer);
+        toastText.textContent = message;
+        toastIcon.textContent = good ? "✓" : "·";
+        toast.classList.toggle("good", Boolean(good));
+        toast.classList.add("show");
+        toastTimer = window.setTimeout(() => toast.classList.remove("show"), 2300);
+      }
+
+      function openModal(modal) {
+        modal.classList.add("is-open");
+        modal.setAttribute("aria-hidden", "false");
+      }
+
+      function closeModal(modal) {
+        modal.classList.remove("is-open");
+        modal.setAttribute("aria-hidden", "true");
+      }
+
+      function ensureAudioContext() {
+        if (!soundEnabled) return null;
+        if (!audioContext) {
+          const AudioCtx = window.AudioContext || window.webkitAudioContext;
+          if (!AudioCtx) return null;
+          audioContext = new AudioCtx();
+        }
+        if (audioContext.state === "suspended") audioContext.resume();
+        return audioContext;
+      }
+
+      function playTone(frequency, duration, volume) {
+        const context = ensureAudioContext();
+        if (!context) return;
+        const oscillator = context.createOscillator();
+        const gain = context.createGain();
+        oscillator.type = "sine";
+        oscillator.frequency.setValueAtTime(frequency, context.currentTime);
+        gain.gain.setValueAtTime(0.0001, context.currentTime);
+        gain.gain.exponentialRampToValueAtTime(volume, context.currentTime + 0.008);
+        gain.gain.exponentialRampToValueAtTime(0.0001, context.currentTime + duration);
+        oscillator.connect(gain).connect(context.destination);
+        oscillator.start();
+        oscillator.stop(context.currentTime + duration + 0.02);
+      }
+
+      function playSuccessSound() {
+        playTone(520, 0.09, 0.03);
+        window.setTimeout(() => playTone(690, 0.12, 0.025), 75);
+        window.setTimeout(() => playTone(880, 0.16, 0.02), 155);
+      }
+
+      function toggleSound() {
+        soundEnabled = !soundEnabled;
+        soundButton.setAttribute("aria-label", soundEnabled ? "Выключить звук" : "Включить звук");
+        soundButton.title = soundEnabled ? "Выключить звук" : "Включить звук";
+        soundIcon.textContent = soundEnabled ? "♪" : "×";
+        soundIcon.style.opacity = soundEnabled ? "1" : "0.45";
+        if (soundEnabled) playTone(510, 0.07, 0.02);
+      }
+
+      function createConfetti(winner) {
+        if (window.matchMedia("(prefers-reduced-motion: reduce)").matches) return;
+        const colors = winner === 0
+          ? ["#c44f45", "#dd8c77", "#b9904d", "#f0c989"]
+          : ["#4d7190", "#83a4b9", "#b9904d", "#e4cfaa"];
+        for (let index = 0; index < 34; index += 1) {
+          const piece = document.createElement("span");
+          piece.className = "confetti";
+          piece.style.left = `${Math.random() * 100}%`;
+          piece.style.top = `${Math.random() * 10}%`;
+          piece.style.background = colors[index % colors.length];
+          piece.style.setProperty("--drift", `${(Math.random() - 0.5) * 240}px`);
+          piece.style.setProperty("--spin", `${(Math.random() * 2 - 1) * 800}deg`);
+          piece.style.animationDelay = `${Math.random() * 0.35}s`;
+          piece.style.animationDuration = `${1.25 + Math.random() * 0.7}s`;
+          document.body.appendChild(piece);
+          window.setTimeout(() => piece.remove(), 2300);
+        }
+      }
+
+      /*
+       * Local glyph recognition:
+       * - render the expected character as a target
+       * - normalize the user's ink and the target into equal boxes
+       * - thin both to one-pixel centerlines
+       * - compare both directions with a distance transform
+       * This is deliberately local and dependency-free.
+       */
+      const glyphCanvas = document.createElement("canvas");
+      glyphCanvas.width = NORM_SIZE * 2;
+      glyphCanvas.height = NORM_SIZE * 2;
+      const glyphContext = glyphCanvas.getContext("2d", { willReadFrequently: true });
+      const normCanvas = document.createElement("canvas");
+      normCanvas.width = NORM_SIZE;
+      normCanvas.height = NORM_SIZE;
+      const normContext = normCanvas.getContext("2d", { willReadFrequently: true });
+
+      function recognize(inputStrokes, expectedChar) {
+        const source = drawStrokesToMask(inputStrokes);
+        const inputMask = normalizeCanvas(source);
+        const inputSkeleton = getSkeleton(inputMask);
+        if (inputSkeleton.points.length < 8) {
+          return { score: 0, accepted: false };
+        }
+        const inputDistanceMap = distanceTransform(inputSkeleton.mask);
+        const targetData = getTargetTemplates(expectedChar);
+        const scores = CARDS.map((card) => {
+          const targets = getTargetTemplates(card.char);
+          return {
+            char: card.char,
+            value: Math.max(...targets.map((target) => (
+              compareSkeletons(inputSkeleton, inputDistanceMap, target)
+            )))
+          };
+        }).sort((a, b) => b.value - a.value);
+
+        const expected = scores.find((entry) => entry.char === expectedChar);
+        const score = expected ? expected.value : 0;
+        const best = scores[0];
+        const rankedFirst = best && best.char === expectedChar;
+        const closeEnoughToBest = rankedFirst || (best && score >= best.value * 0.94);
+        const accepted = score >= PASS_SCORE && closeEnoughToBest;
+
+        return {
+          score,
+          accepted,
+          bestChar: best ? best.char : "",
+          bestScore: best ? best.value : 0,
+          targetData
+        };
+      }
+
+      function drawStrokesToMask(strokes) {
+        const canvas = document.createElement("canvas");
+        canvas.width = CELL_SIZE;
+        canvas.height = CELL_SIZE;
+        const context = canvas.getContext("2d", { willReadFrequently: true });
+        context.fillStyle = "#000";
+        context.strokeStyle = "#000";
+        context.lineCap = "round";
+        context.lineJoin = "round";
+        context.lineWidth = LINE_WIDTH;
+        strokes.forEach((stroke) => {
+          if (stroke.length === 1) {
+            context.beginPath();
+            context.arc(stroke[0].x, stroke[0].y, LINE_WIDTH * 0.44, 0, Math.PI * 2);
+            context.fill();
+          } else {
+            context.beginPath();
+            context.moveTo(stroke[0].x, stroke[0].y);
+            for (let index = 1; index < stroke.length; index += 1) {
+              context.lineTo(stroke[index].x, stroke[index].y);
+            }
+            context.stroke();
+          }
+        });
+        return canvas;
+      }
+
+      function maskFromCanvas(source, threshold = 80) {
+        const context = source.getContext("2d", { willReadFrequently: true });
+        const pixels = context.getImageData(0, 0, source.width, source.height).data;
+        const mask = new Uint8Array(source.width * source.height);
+        let minX = source.width;
+        let minY = source.height;
+        let maxX = -1;
+        let maxY = -1;
+        for (let index = 0; index < pixels.length; index += 4) {
+          if (pixels[index + 3] > threshold && pixels[index] < 180) {
+            const pixel = index / 4;
+            const x = pixel % source.width;
+            const y = Math.floor(pixel / source.width);
+            mask[pixel] = 1;
+            minX = Math.min(minX, x);
+            minY = Math.min(minY, y);
+            maxX = Math.max(maxX, x);
+            maxY = Math.max(maxY, y);
+          }
+        }
+        return { mask, width: source.width, height: source.height, minX, minY, maxX, maxY, empty: maxX < 0 };
+      }
+
+      function normalizeCanvas(source) {
+        const data = maskFromCanvas(source);
+        if (data.empty) return { mask: new Uint8Array(NORM_SIZE * NORM_SIZE), empty: true };
+        normContext.clearRect(0, 0, NORM_SIZE, NORM_SIZE);
+        normContext.imageSmoothingEnabled = true;
+        normContext.imageSmoothingQuality = "high";
+        const boxWidth = Math.max(1, data.maxX - data.minX + 1);
+        const boxHeight = Math.max(1, data.maxY - data.minY + 1);
+        const scale = INNER_SIZE / Math.max(boxWidth, boxHeight);
+        const drawWidth = boxWidth * scale;
+        const drawHeight = boxHeight * scale;
+        normContext.drawImage(
+          source,
+          data.minX,
+          data.minY,
+          boxWidth,
+          boxHeight,
+          (NORM_SIZE - drawWidth) / 2,
+          (NORM_SIZE - drawHeight) / 2,
+          drawWidth,
+          drawHeight
+        );
+        return maskFromCanvas(normCanvas);
+      }
+
+      function getTargetTemplates(char) {
+        if (templateCache.has(char)) return templateCache.get(char);
+
+        const fonts = [
+          `700 ${NORM_SIZE * 2 * 0.86}px "Microsoft YaHei", "SimHei", sans-serif`,
+          `700 ${NORM_SIZE * 2 * 0.86}px "KaiTi", "STKaiti", serif`,
+          `700 ${NORM_SIZE * 2 * 0.86}px "FangSong", "STFangsong", serif`
+        ];
+        const templates = fonts.map((font) => {
+          glyphContext.clearRect(0, 0, glyphCanvas.width, glyphCanvas.height);
+          glyphContext.fillStyle = "#000";
+          glyphContext.fillRect(0, 0, glyphCanvas.width, glyphCanvas.height);
+          glyphContext.fillStyle = "#fff";
+          glyphContext.textAlign = "center";
+          glyphContext.textBaseline = "middle";
+          glyphContext.font = font;
+          glyphContext.fillText(char, NORM_SIZE, NORM_SIZE * 1.02);
+
+          // Convert the inverted glyph to transparent ink so the shared normalizer sees black strokes.
+          const source = document.createElement("canvas");
+          source.width = glyphCanvas.width;
+          source.height = glyphCanvas.height;
+          const sourceContext = source.getContext("2d", { willReadFrequently: true });
+          sourceContext.drawImage(glyphCanvas, 0, 0);
+          const image = sourceContext.getImageData(0, 0, source.width, source.height);
+          for (let index = 0; index < image.data.length; index += 4) {
+            const white = image.data[index] > 160;
+            image.data[index] = 0;
+            image.data[index + 1] = 0;
+            image.data[index + 2] = 0;
+            image.data[index + 3] = white ? 255 : 0;
+          }
+          sourceContext.putImageData(image, 0, 0);
+          const maskData = normalizeCanvas(source);
+          const skeleton = getSkeleton(maskData);
+          const distanceMap = distanceTransform(skeleton.mask);
+          return { maskData, skeleton, distanceMap };
+        });
+        templateCache.set(char, templates);
+        return templates;
+      }
+
+      function getSkeleton(maskData) {
+        if (!maskData || maskData.empty) {
+          return { mask: new Uint8Array(NORM_SIZE * NORM_SIZE), points: [] };
+        }
+        const width = NORM_SIZE;
+        const height = NORM_SIZE;
+        const image = Uint8Array.from(maskData.mask);
+        let changed = true;
+        let iterations = 0;
+
+        while (changed && iterations < 32) {
+          changed = false;
+          for (let step = 0; step < 2; step += 1) {
+            const remove = [];
+            for (let y = 1; y < height - 1; y += 1) {
+              for (let x = 1; x < width - 1; x += 1) {
+                const center = y * width + x;
+                if (!image[center]) continue;
+                const p2 = image[(y - 1) * width + x];
+                const p3 = image[(y - 1) * width + x + 1];
+                const p4 = image[y * width + x + 1];
+                const p5 = image[(y + 1) * width + x + 1];
+                const p6 = image[(y + 1) * width + x];
+                const p7 = image[(y + 1) * width + x - 1];
+                const p8 = image[y * width + x - 1];
+                const p9 = image[(y - 1) * width + x - 1];
+                const neighbors = [p2, p3, p4, p5, p6, p7, p8, p9, p2];
+                let transitions = 0;
+                let count = 0;
+                for (let index = 0; index < 8; index += 1) {
+                  count += neighbors[index];
+                  if (neighbors[index] === 0 && neighbors[index + 1] === 1) transitions += 1;
+                }
+                if (count < 2 || count > 6 || transitions !== 1) continue;
+                const firstCondition = step === 0
+                  ? p2 * p4 * p6 === 0 && p4 * p6 * p8 === 0
+                  : p2 * p4 * p8 === 0 && p2 * p6 * p8 === 0;
+                if (firstCondition) remove.push(center);
+              }
+            }
+            if (remove.length) {
+              changed = true;
+              remove.forEach((pixel) => { image[pixel] = 0; });
+            }
+          }
+          iterations += 1;
+        }
+
+        const points = [];
+        for (let pixel = 0; pixel < image.length; pixel += 1) {
+          if (image[pixel]) {
+            points.push({ x: pixel % width, y: Math.floor(pixel / width), pixel });
+          }
+        }
+        return { mask: image, points };
+      }
+
+      function distanceTransform(mask) {
+        const width = NORM_SIZE;
+        const height = NORM_SIZE;
+        const distances = new Uint16Array(width * height);
+        distances.fill(65535);
+        const queue = new Int32Array(width * height);
+        let head = 0;
+        let tail = 0;
+        for (let pixel = 0; pixel < mask.length; pixel += 1) {
+          if (mask[pixel]) {
+            distances[pixel] = 0;
+            queue[tail++] = pixel;
+          }
+        }
+        while (head < tail) {
+          const pixel = queue[head++];
+          const currentDistance = distances[pixel];
+          const x = pixel % width;
+          const y = Math.floor(pixel / width);
+          for (let dy = -1; dy <= 1; dy += 1) {
+            for (let dx = -1; dx <= 1; dx += 1) {
+              if (dx === 0 && dy === 0) continue;
+              const nx = x + dx;
+              const ny = y + dy;
+              if (nx < 0 || nx >= width || ny < 0 || ny >= height) continue;
+              const nextPixel = ny * width + nx;
+              const cost = dx && dy ? 1.414 : 1;
+              const nextDistance = currentDistance + cost;
+              if (nextDistance < distances[nextPixel]) {
+                distances[nextPixel] = Math.round(nextDistance);
+                queue[tail++] = nextPixel;
+              }
+            }
+          }
+        }
+        return distances;
+      }
+
+      function directionalSimilarity(points, otherDistanceMap) {
+        if (!points.length) return 0;
+        const distances = points.map((point) => Math.min(otherDistanceMap[point.pixel], 42));
+        distances.sort((a, b) => a - b);
+        const average = distances.reduce((sum, value) => sum + value, 0) / distances.length;
+        const percentile = distances[Math.floor((distances.length - 1) * 0.82)];
+        const covered = distances.filter((value) => value <= 10).length / distances.length;
+        const distanceScore = Math.exp(-(average * 0.63 + percentile * 0.37) / 8.7);
+        const coverageScore = Math.max(0, (covered - 0.2) / 0.8);
+        return distanceScore * 0.72 + Math.min(1, coverageScore) * 0.28;
+      }
+
+      function compareSkeletons(inputSkeleton, inputDistanceMap, target) {
+        if (!target.skeleton.points.length) return 0;
+        const inputToTarget = directionalSimilarity(inputSkeleton.points, target.distanceMap);
+        const targetToInput = directionalSimilarity(target.skeleton.points, inputDistanceMap);
+        const harmonic = inputToTarget + targetToInput > 0
+          ? (2 * inputToTarget * targetToInput) / (inputToTarget + targetToInput)
+          : 0;
+        return harmonic * 0.68 + inputToTarget * 0.16 + targetToInput * 0.16;
+      }
+
+      document.getElementById("nextRoundButton").addEventListener("click", startNextRound);
+      document.getElementById("resetScoresButton").addEventListener("click", resetAllScores);
+      document.getElementById("rulesButton").addEventListener("click", () => openModal(rulesBackdrop));
+      document.getElementById("closeRulesButton").addEventListener("click", () => closeModal(rulesBackdrop));
+      soundButton.addEventListener("click", toggleSound);
+      checkButton.addEventListener("click", checkWriting);
+      clearButton.addEventListener("click", clearActiveCell);
+      hintButton.addEventListener("click", showHint);
+
+      rulesBackdrop.addEventListener("click", (event) => {
+        if (event.target === rulesBackdrop) closeModal(rulesBackdrop);
+      });
+
+      document.addEventListener("keydown", (event) => {
+        if (event.key === "Escape") {
+          closeModal(rulesBackdrop);
+        }
+        if ((event.ctrlKey || event.metaKey) && event.key === "Enter" && !checkButton.disabled) {
+          event.preventDefault();
+          checkWriting();
+        }
+      });
+
+      createBoard();
+      themeName.textContent = "Случайная подборка";
+      updateScores();
+      updateTurnInterface();
+      updateActions();
+
+    })();
+  </script>
+</body>
+</html>
